@@ -8,18 +8,18 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const jogo = await prisma.jogo.findUnique({
+    const participante = await prisma.participante.findUnique({
       where: { id },
       include: { bolao: true },
     });
 
-    if (!jogo) {
-      return NextResponse.json({ error: "Jogo não encontrado" }, { status: 404 });
+    if (!participante) {
+      return NextResponse.json({ error: "Participante não encontrado" }, { status: 404 });
     }
 
-    return NextResponse.json(jogo);
+    return NextResponse.json(participante);
   } catch {
-    return NextResponse.json({ error: "Erro ao buscar jogo" }, { status: 500 });
+    return NextResponse.json({ error: "Erro ao buscar participante" }, { status: 500 });
   }
 }
 
@@ -36,21 +36,20 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    const jogo = await prisma.jogo.update({
+    const participante = await prisma.participante.update({
       where: { id },
       data: {
-        ...(body.numeros && { numeros: body.numeros }),
-        ...(body.dataSorteio && { dataSorteio: new Date(body.dataSorteio) }),
+        ...(body.nome && { nome: body.nome }),
+        ...(body.chavePix && { chavePix: body.chavePix }),
+        ...(body.tipoPix && { tipoPix: body.tipoPix }),
+        ...(body.cotas !== undefined && { cotas: Number(body.cotas) }),
         ...(body.bolaoId && { bolaoId: body.bolaoId }),
-        ...(body.quantNumeros !== undefined && { quantNumeros: Number(body.quantNumeros) }),
-        ...(body.origem && { origem: body.origem }),
-        ...(body.numeroConcurso !== undefined && { numeroConcurso: body.numeroConcurso || null }),
       },
     });
 
-    return NextResponse.json(jogo);
+    return NextResponse.json(participante);
   } catch {
-    return NextResponse.json({ error: "Erro ao atualizar jogo" }, { status: 500 });
+    return NextResponse.json({ error: "Erro ao atualizar participante" }, { status: 500 });
   }
 }
 
@@ -65,10 +64,10 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    await prisma.jogo.delete({ where: { id } });
+    await prisma.participante.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ error: "Erro ao deletar jogo" }, { status: 500 });
+    return NextResponse.json({ error: "Erro ao deletar participante" }, { status: 500 });
   }
 }

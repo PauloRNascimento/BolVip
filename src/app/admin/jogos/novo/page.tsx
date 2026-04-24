@@ -25,10 +25,14 @@ export default function NovoJogoPage() {
     setError("");
 
     const formData = new FormData(e.currentTarget);
+    const numeros = String(formData.get("numeros"));
     const body = {
-      numeros: formData.get("numeros"),
+      numeros,
       dataSorteio: formData.get("dataSorteio"),
       bolaoId: formData.get("bolaoId"),
+      quantNumeros: numeros.split(",").map((n) => n.trim()).filter(Boolean).length,
+      origem: formData.get("origem"),
+      numeroConcurso: formData.get("numeroConcurso") || null,
     };
 
     try {
@@ -68,8 +72,22 @@ export default function NovoJogoPage() {
         </div>
 
         <div>
-          <label htmlFor="numeros" className="block text-sm font-medium text-gray-700 mb-1">Números (separados por vírgula)</label>
+          <label htmlFor="numeroConcurso" className="block text-sm font-medium text-gray-700 mb-1">Número do Concurso</label>
+          <input id="numeroConcurso" name="numeroConcurso" placeholder="Ex: 2800" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none" />
+        </div>
+
+        <div>
+          <label htmlFor="origem" className="block text-sm font-medium text-gray-700 mb-1">Origem</label>
+          <select id="origem" name="origem" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none">
+            <option value="online">Online</option>
+            <option value="fisica">Lotérica (Físico)</option>
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="numeros" className="block text-sm font-medium text-gray-700 mb-1">Números (separados por vírgula, de 01 a 60)</label>
           <input id="numeros" name="numeros" placeholder="04, 15, 23, 35, 42, 58" required className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none" />
+          <p className="mt-1 text-xs text-gray-500">Mínimo 6 números, máximo 20 números</p>
         </div>
 
         <div>

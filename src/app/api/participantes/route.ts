@@ -9,15 +9,15 @@ export async function GET(request: Request) {
 
     const where = bolaoId ? { bolaoId } : {};
 
-    const jogos = await prisma.jogo.findMany({
+    const participantes = await prisma.participante.findMany({
       where,
       include: { bolao: { select: { nome: true, tipoJogo: true } } },
-      orderBy: { dataSorteio: "desc" },
+      orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(jogos);
+    return NextResponse.json(participantes);
   } catch {
-    return NextResponse.json({ error: "Erro ao buscar jogos" }, { status: 500 });
+    return NextResponse.json({ error: "Erro ao buscar participantes" }, { status: 500 });
   }
 }
 
@@ -29,25 +29,24 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { numeros, dataSorteio, bolaoId, quantNumeros, origem, numeroConcurso } = body;
+    const { nome, chavePix, tipoPix, cotas, bolaoId } = body;
 
-    if (!numeros || !dataSorteio || !bolaoId) {
+    if (!nome || !chavePix || !tipoPix || !bolaoId) {
       return NextResponse.json({ error: "Campos obrigatórios faltando" }, { status: 400 });
     }
 
-    const jogo = await prisma.jogo.create({
+    const participante = await prisma.participante.create({
       data: {
-        numeros,
-        dataSorteio: new Date(dataSorteio),
+        nome,
+        chavePix,
+        tipoPix,
+        cotas: cotas ? Number(cotas) : 1,
         bolaoId,
-        quantNumeros: quantNumeros ? Number(quantNumeros) : 6,
-        origem: origem || "online",
-        numeroConcurso: numeroConcurso || null,
       },
     });
 
-    return NextResponse.json(jogo, { status: 201 });
+    return NextResponse.json(participante, { status: 201 });
   } catch {
-    return NextResponse.json({ error: "Erro ao criar jogo" }, { status: 500 });
+    return NextResponse.json({ error: "Erro ao criar participante" }, { status: 500 });
   }
 }

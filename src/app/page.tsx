@@ -2,15 +2,15 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency, formatDate, getStatusLabel, getStatusColor, getWhatsAppLink } from "@/lib/utils";
+import { formatCurrency, formatDate, getStatusLabel, getStatusColor, getWhatsAppLink, MEGA_SENA_PRECOS } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 async function getDashboardData() {
-  const [movimentacoes, boloes, jogos, resultados] = await Promise.all([
+  const [movimentacoes, boloes, jogos, allJogos, resultados] = await Promise.all([
     prisma.movimentacao.findMany(),
     prisma.bolao.findMany({
-      include: { _count: { select: { jogos: true } } },
+      include: { _count: { select: { jogos: true, participantes: true } } },
       orderBy: { dataSorteio: "desc" },
     }),
     prisma.jogo.findMany({
@@ -18,6 +18,7 @@ async function getDashboardData() {
       orderBy: { dataSorteio: "desc" },
       take: 10,
     }),
+    prisma.jogo.findMany({ select: { quantNumeros: true, origem: true } }),
     prisma.resultado.findMany({
       include: { bolao: { select: { nome: true, tipoJogo: true } } },
       orderBy: { createdAt: "desc" },
@@ -36,7 +37,16 @@ async function getDashboardData() {
   const boloesAtivos = boloes.filter((b) => b.status !== "finalizado");
   const boloesFinalizados = boloes.filter((b) => b.status === "finalizado");
 
-  return { saldo, totalPremios, boloesAtivos, boloesFinalizados, jogos, resultados, totalEntradas, totalSaidas };
+  const totalJogos = allJogos.length;
+  const jogosOnline = allJogos.filter((j) => j.origem === "online").length;
+  const jogosFisicos = allJogos.filter((j) => j.origem === "fisica").length;
+  const custoTotalJogos = allJogos.reduce((acc, j) => acc + (MEGA_SENA_PRECOS[j.quantNumeros] || 0), 0);
+
+  return {
+    saldo, totalPremios, boloesAtivos, boloesFinalizados,
+    jogos, resultados, totalEntradas, totalSaidas,
+    totalJogos, jogosOnline, jogosFisicos, custoTotalJogos,
+  };
 }
 
 export default async function HomePage() {
@@ -169,7 +179,7 @@ export default async function HomePage() {
         </section>
 
         {/* Jogos Realizados */}
-        <section id="jogos" className="py-16">
+        <section id="jogos" className="py-16 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900">Jogos Realizados</h2>
@@ -223,8 +233,37 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Arrecadação vs Jogos */}
+        <section id="arrecadacao" className="py-16 bg-gray-50">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900">Arrecadação vs Jogos</h2>
+              <p className="mt-2 text-gray-600">Acompanhe quanto foi arrecadado e quanto foi investido em jogos</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="rounded-2xl bg-white p-6 text-center border border-gray-200 shadow-sm">
+                <p className="text-sm font-medium text-emerald-600">Total Arrecadado</p>
+                <p className="mt-2 text-2xl font-bold text-emerald-700">{formatCurrency(data.totalEntradas)}</p>
+              </div>
+              <div className="rounded-2xl bg-white p-6 text-center border border-gray-200 shadow-sm">
+                <p className="text-sm font-medium text-blue-600">Custo dos Jogos</p>
+                <p className="mt-2 text-2xl font-bold text-blue-700">{formatCurrency(data.custoTotalJogos)}</p>
+              </div>
+              <div className="rounded-2xl bg-white p-6 text-center border border-gray-200 shadow-sm">
+                <p className="text-sm font-medium text-gray-600">Total de Jogos</p>
+                <p className="mt-2 text-2xl font-bold text-gray-900">{data.totalJogos}</p>
+                <p className="mt-1 text-xs text-gray-500">{data.jogosOnline} online | {data.jogosFisicos} físicos</p>
+              </div>
+              <div className="rounded-2xl bg-white p-6 text-center border border-gray-200 shadow-sm">
+                <p className="text-sm font-medium text-amber-600">Saldo Restante</p>
+                <p className="mt-2 text-2xl font-bold text-amber-700">{formatCurrency(data.totalEntradas - data.custoTotalJogos)}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Resultados */}
-        <section id="resultados" className="py-16 bg-gray-50">
+        <section id="resultados" className="py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900">Resultados e Premiações</h2>

@@ -43,7 +43,7 @@ export function getStatusColor(status: string): string {
   return colors[status] || "bg-gray-100 text-gray-800";
 }
 
-export const WHATSAPP_NUMBER = "5511999999999";
+export const WHATSAPP_NUMBER = "5511932347131";
 export const WHATSAPP_MESSAGE = "Olá! Quero participar do bolão! 🍀";
 export function getWhatsAppLink(): string {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
@@ -58,3 +58,23 @@ export const TIPOS_JOGO = [
   "Timemania",
   "Dia de Sorte",
 ];
+
+export const MEGA_SENA_PRECOS: Record<number, number> = {
+  6: 6.00,
+  7: 42.00,
+  8: 168.00,
+  9: 504.00,
+  10: 1260.00,
+  11: 2772.00,
+  12: 5544.00,
+  13: 10296.00,
+  14: 18018.00,
+  15: 30030.00,
+  16: 48048.00,
+  17: 74256.00,
+  18: 111384.00,
+  19: 162792.00,
+  20: 232560.00,
+};
+
+export const COMISSAO_OPERADOR = 0.10;

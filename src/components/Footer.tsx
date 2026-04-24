@@ -29,14 +29,19 @@ export default function Footer() {
                   Transparência
                 </a>
               </li>
+              <li>
+                <Link href="/calculadora" className="hover:text-white transition-colors">
+                  Calculadora
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-white">Administração</h4>
+            <h4 className="font-semibold text-white">Institucional</h4>
             <ul className="mt-2 space-y-1 text-sm">
               <li>
                 <Link href="/admin/login" className="hover:text-white transition-colors">
-                  Painel Admin
+                  Sobre
                 </Link>
               </li>
             </ul>

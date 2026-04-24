@@ -29,6 +29,9 @@ export default function Header() {
             <a href="#transparencia" className="text-sm font-medium text-emerald-100 hover:text-white transition-colors">
               Transparência
             </a>
+            <Link href="/calculadora" className="text-sm font-medium text-amber-300 hover:text-amber-200 transition-colors">
+              Calculadora
+            </Link>
           </nav>
         </div>
       </div>

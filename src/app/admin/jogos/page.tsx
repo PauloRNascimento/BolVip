@@ -7,6 +7,9 @@ interface Jogo {
   id: string;
   numeros: string;
   dataSorteio: string;
+  quantNumeros: number;
+  origem: string;
+  numeroConcurso: string | null;
   bolao: { nome: string; tipoJogo: string };
 }
 
@@ -30,16 +33,41 @@ export default function JogosPage() {
     setJogos((prev) => prev.filter((j) => j.id !== id));
   }
 
+  const jogosOnline = jogos.filter((j) => j.origem === "online").length;
+  const jogosFisicos = jogos.filter((j) => j.origem === "fisica").length;
+
   if (loading) return <div className="flex items-center justify-center h-64"><p className="text-gray-500">Carregando...</p></div>;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Jogos</h1>
-        <Link href="/admin/jogos/novo" className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 transition-colors">
-          + Novo Jogo
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/admin/jogos/importar" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+            Importar Jogos
+          </Link>
+          <Link href="/admin/jogos/novo" className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 transition-colors">
+            + Novo Jogo
+          </Link>
+        </div>
       </div>
+
+      {jogos.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="rounded-xl bg-white p-4 border shadow-sm text-center">
+            <p className="text-sm text-gray-500">Total de Jogos</p>
+            <p className="text-2xl font-bold text-gray-900">{jogos.length}</p>
+          </div>
+          <div className="rounded-xl bg-white p-4 border shadow-sm text-center">
+            <p className="text-sm text-gray-500">Online</p>
+            <p className="text-2xl font-bold text-blue-600">{jogosOnline}</p>
+          </div>
+          <div className="rounded-xl bg-white p-4 border shadow-sm text-center">
+            <p className="text-sm text-gray-500">Lotérica (Físico)</p>
+            <p className="text-2xl font-bold text-amber-600">{jogosFisicos}</p>
+          </div>
+        </div>
+      )}
 
       {jogos.length === 0 ? (
         <p className="text-gray-500">Nenhum jogo cadastrado.</p>
@@ -49,8 +77,10 @@ export default function JogosPage() {
             <thead className="border-b bg-gray-50">
               <tr>
                 <th className="px-4 py-3 font-semibold text-gray-600">Bolão</th>
-                <th className="px-4 py-3 font-semibold text-gray-600">Tipo</th>
+                <th className="px-4 py-3 font-semibold text-gray-600">Concurso</th>
+                <th className="px-4 py-3 font-semibold text-gray-600">Origem</th>
                 <th className="px-4 py-3 font-semibold text-gray-600">Números</th>
+                <th className="px-4 py-3 font-semibold text-gray-600">Qtd</th>
                 <th className="px-4 py-3 font-semibold text-gray-600">Sorteio</th>
                 <th className="px-4 py-3 font-semibold text-gray-600">Ações</th>
               </tr>
@@ -59,7 +89,12 @@ export default function JogosPage() {
               {jogos.map((j) => (
                 <tr key={j.id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium text-gray-900">{j.bolao.nome}</td>
-                  <td className="px-4 py-3 text-gray-600">{j.bolao.tipoJogo}</td>
+                  <td className="px-4 py-3 text-gray-600">{j.numeroConcurso || "-"}</td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${j.origem === "online" ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"}`}>
+                      {j.origem === "online" ? "Online" : "Física"}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {j.numeros.split(",").map((n, i) => (
@@ -69,6 +104,7 @@ export default function JogosPage() {
                       ))}
                     </div>
                   </td>
+                  <td className="px-4 py-3 text-gray-600">{j.quantNumeros}</td>
                   <td className="px-4 py-3 text-gray-600">{formatDate(j.dataSorteio)}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
