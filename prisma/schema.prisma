@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Bolao {
+  id          String      @id @default(cuid())
+  nome        String
+  tipoJogo    String
+  dataSorteio DateTime
+  valorCota   Float
+  totalCotas  Int
+  status      String      @default("aberto")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  jogos         Jogo[]
+  resultados    Resultado[]
+  participantes Participante[]
+}
+
+model Jogo {
+  id             String   @id @default(cuid())
+  numeros        String
+  dataSorteio    DateTime
+  quantNumeros   Int      @default(6)
+  origem         String   @default("online")
+  numeroConcurso String?
+  bolaoId        String
+  bolao          Bolao    @relation(fields: [bolaoId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Participante {
+  id        String   @id @default(cuid())
+  nome      String
+  chavePix  String
+  tipoPix   String
+  cotas     Int      @default(1)
+  bolaoId   String
+  bolao     Bolao    @relation(fields: [bolaoId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Resultado {
+  id               String   @id @default(cuid())
+  numerosSorteados String
+  valorGanho       Float    @default(0)
+  quantGanhadores  Int      @default(0)
+  descricao        String?
+  bolaoId          String
+  bolao            Bolao    @relation(fields: [bolaoId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Movimentacao {
+  id        String   @id @default(cuid())
+  tipo      String
+  valor     Float
+  descricao String
+  data      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
