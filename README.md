@@ -1,36 +1,132 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bolao VIP
 
-## Getting Started
+Sistema de gerenciamento de boloes de loteria com transparencia total.
 
-First, run the development server:
+## Stack
+
+- **Frontend**: Next.js 16 (App Router) + React 19
+- **Estilo**: Tailwind CSS v4
+- **Banco de Dados**: SQLite (Prisma ORM) - facilmente migravel para PostgreSQL
+- **Autenticacao**: JWT (cookie httpOnly)
+- **Linguagem**: TypeScript
+
+## Funcionalidades
+
+### Pagina Publica (Landing Page)
+- Saldo atual e transparencia financeira
+- Boloes ativos com detalhes (tipo, sorteio, valor da cota)
+- Jogos realizados com numeros apostados
+- Resultados e premiacoes
+- Historico de boloes finalizados
+- Botao flutuante de WhatsApp para participacao
+
+### Painel Administrativo
+- Dashboard com metricas financeiras
+- CRUD completo de Boloes
+- CRUD completo de Jogos
+- CRUD completo de Resultados
+- CRUD completo de Movimentacoes Financeiras
+- Autenticacao com JWT
+
+## Como Rodar
+
+### Pre-requisitos
+- Node.js 20+
+- npm
+
+### Instalacao
 
 ```bash
+# Instalar dependencias
+npm install
+
+# Gerar o Prisma Client
+npx prisma generate
+
+# Criar o banco de dados e aplicar migracoes
+npx prisma migrate dev
+
+# Popular o banco com dados de exemplo
+npx tsx prisma/seed.ts
+
+# Iniciar o servidor de desenvolvimento
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+O site estara disponivel em [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Acesso Admin
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **URL**: http://localhost:3000/admin/login
+- **Email**: admin@bolaovip.com
+- **Senha**: admin123
 
-## Learn More
+## Estrutura do Projeto
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/
+    page.tsx              # Landing page publica
+    layout.tsx            # Root layout
+    api/
+      auth/               # Login, logout, sessao
+      boloes/             # CRUD boloes
+      jogos/              # CRUD jogos
+      resultados/         # CRUD resultados
+      movimentacoes/      # CRUD financeiro
+      dashboard/          # Stats publicos
+    admin/
+      page.tsx            # Dashboard admin
+      login/              # Pagina de login
+      boloes/             # Gerenciar boloes
+      jogos/              # Gerenciar jogos
+      resultados/         # Gerenciar resultados
+      movimentacoes/      # Gerenciar financeiro
+  components/
+    Header.tsx            # Cabecalho publico
+    Footer.tsx            # Rodape
+    WhatsAppButton.tsx    # Botao flutuante WhatsApp
+  lib/
+    prisma.ts             # Cliente Prisma
+    auth.ts               # Funcoes JWT
+    utils.ts              # Utilitarios (formatacao, constantes)
+prisma/
+  schema.prisma           # Modelos do banco
+  seed.ts                 # Dados de exemplo
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Modelos do Banco
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **User**: Administradores do sistema
+- **Bolao**: Boloes de loteria (nome, tipo, sorteio, cotas, status)
+- **Jogo**: Jogos/apostas realizadas (numeros, bolao relacionado)
+- **Resultado**: Resultados dos sorteios (numeros sorteados, premio)
+- **Movimentacao**: Controle financeiro (entradas e saidas)
 
-## Deploy on Vercel
+## Configuracao WhatsApp
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Edite o arquivo `src/lib/utils.ts` para configurar o numero do WhatsApp:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```typescript
+export const WHATSAPP_NUMBER = "5511999999999"; // Seu numero
+export const WHATSAPP_MESSAGE = "Ola! Quero participar do bolao!";
+```
+
+## Migrar para PostgreSQL
+
+1. Altere o provider em `prisma/schema.prisma`:
+   ```prisma
+   datasource db {
+     provider = "postgresql"
+   }
+   ```
+
+2. Configure a URL no `prisma.config.ts` e `.env`:
+   ```
+   DATABASE_URL="postgresql://user:pass@localhost:5432/bolaovip"
+   ```
+
+3. Execute as migracoes:
+   ```bash
+   npx prisma migrate dev
+   ```
